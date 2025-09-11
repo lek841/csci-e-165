@@ -10,11 +10,15 @@ int main(void) {
   hashtable *ht = NULL;
   int size = 10;
   allocate(&ht, size);
+   
 
   int key = 0;
   int value = -1;
 
   put(ht, key, value);
+  put(ht, 1, -2);
+  put(ht, 2, -3);
+  put(ht, 3, -4);
 
   int num_values = 1;
 

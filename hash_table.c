@@ -1,4 +1,17 @@
+#include <stdlib.h>      // malloc()
+
 #include "hash_table.h"
+
+/* purpose: hash function that finds the module of the given
+ *          key
+ *    args: keyType, key
+ *          param_t, slots, array size of the hash table
+ *    rets: slot where the head of the linked list is
+ *   notes: simple hash function 
+ */
+int hash_modulo(keyType key, param_t slots) {
+    return (key % (slots -1 ));
+}
 
 // Initialize the components of a hashtable.
 // The size parameter is the expected number of elements to be inserted.
@@ -6,13 +19,25 @@
 // (e.g., if the parameter passed to the method is not null, if malloc 
 // fails, etc).
 int allocate(hashtable** ht, int size) {
-    // The next line tells the compiler that we know we haven't used 
-    // the variable
-    // yet so don't issue a warning. You should remove this line once you 
-    // use
-    // the parameter.
-    (void) ht;
-    (void) size;
+
+    if (*ht != NULL) {
+        return -1;
+    }
+
+    *ht = malloc(sizeof(**ht));
+    if (*ht == NULL) {
+        return -1;
+    }
+    
+    (*ht)->arr = malloc(size * sizeof(struct n_t));
+  
+    if (*ht == NULL) {
+        return -1;
+    }
+
+    (*ht)->slots = size;
+    (*ht)->hash = hash_modulo;
+     
     return 0;
 }
 
@@ -20,9 +45,25 @@ int allocate(hashtable** ht, int size) {
 // It returns an error code, 0 for success and -1 otherwise 
 // (e.g., if malloc is called and fails).
 int put(hashtable* ht, keyType key, valType value) {
-    (void) ht;
-    (void) key;
-    (void) value;
+    
+    // Find the appropriate slot.
+    int slot = ht->hash(key, ht->slots);
+
+    // Insert the node.
+    struct n_t *cur;
+    if (ht->arr[slot].next == NULL) {
+        // Empty list.
+        ht->arr[slot].key = key;
+        ht->arr[slot].value = value;
+        ht->arr[slot].next = NULL;
+    }
+    else {
+        cur = &ht->arr[slot];  
+        ht->arr[slot].key = key;
+        ht->arr[slot].value = value;
+        ht->arr[slot].next = cur;
+    }
+        
     return 0;
 }
 
