@@ -19,7 +19,7 @@ typedef struct hashtable {
     // (e.g. the array, bookkeeping for number of elements, etc)
     int elems;
     int slots;
-    struct n_t *arr; 
+    struct n_t **arr; 
     int (*hash) (keyType, param_t);
 } hashtable;
 

@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <stdlib.h>      // malloc()
+#include <stdio.h>       // 
 
 #include "hash_table.h"
 
@@ -10,22 +10,23 @@ int main(void) {
   hashtable *ht = NULL;
   int size = 10;
   allocate(&ht, size);
-   
 
   int key = 0;
   int value = -1;
 
   put(ht, key, value);
   put(ht, 1, -2);
-  put(ht, 2, -3);
-  put(ht, 3, -4);
+  put(ht, 1, -3);
+  put(ht, 1, -4);
 
-  int num_values = 1;
+  int num_values = 3;
 
-  valType* values = malloc(1 * sizeof(valType));
+  valType* values = malloc(3 * sizeof(valType));
 
-  int* num_results = NULL;
+  int *num_results = NULL;
+  num_results = malloc(sizeof(int));
 
+  key = 1;
   get(ht, key, values, num_values, num_results);
   if ((*num_results) > num_values) {
     values = realloc(values, (*num_results) * sizeof(valType));
