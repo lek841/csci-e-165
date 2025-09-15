@@ -1,0 +1,12 @@
+# Object files
+*.o
+
+# Executables (you can also list specific program names instead of *)
+a.out
+*.out
+*.exe
+
+# Editor/temporary files
+*~
+*.swp
+
