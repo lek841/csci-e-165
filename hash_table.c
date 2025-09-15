@@ -10,7 +10,7 @@
  *   notes: simple hash function 
  */
 int hash_modulo(keyType key, param_t slots) {
-    return (key % (slots -1 ));
+    return (key % slots);
 }
 
 // Initialize the components of a hashtable.
@@ -37,6 +37,10 @@ int allocate(hashtable** ht, int size) {
 
     (*ht)->slots = size;
     (*ht)->hash = hash_modulo;
+
+    for (int slot = 0; slot < (*ht)->slots; ++slot) {
+        (*ht)->arr[slot] = NULL;
+    }
      
     return 0;
 }
@@ -118,20 +122,22 @@ int get(
     // Iterate the list. 
     struct n_t *cur = ht->arr[slot];
     while (cur) {
-        if (num_values) {
-            // Have space for return values.
-            *values = cur->value;
-            --num_values;
-            ++values;
-            ++(*num_results);
-        }
-        else {
-            // Reached return value capacity. 
-            ++num_results;
+        if (cur->key == key) {
+            // Requested key match.
+            if (num_values) {
+                // Have space for return values.
+                *values = cur->value;
+                --num_values;
+                ++values;
+                ++(*num_results);
+            }
+            else {
+                // Reached return value capacity. 
+                ++num_results;
+            }
         }
         cur = cur->next; 
     }    
-    
     return 0;
 }
 
@@ -140,19 +146,67 @@ int get(
 // It returns an error code, 0 for success and -1 otherwise 
 // (e.g., if the hashtable is not allocated).
 int erase(hashtable* ht, keyType key) {
-    (void) ht;
-    (void) key;
+
+    if (ht == NULL) {
+        return -1;
+    }
+   
+    int slot = ht->hash(key, ht->slots); 
+
+    struct n_t *cur = ht->arr[slot];
+    struct n_t *temp;
+    struct n_t *prev = cur;
+    
+    while (cur) {
+        // Found a match.   
+        if (key == cur->key) {
+            if (prev == cur) {
+                // List head.
+                if (cur->next == NULL) {
+                    free(cur);
+                    ht->arr[slot] = NULL;
+                    break;
+                }
+                else {
+                    // Copy next
+                    cur->key = cur->next->key;
+                    cur->value = cur->next->value;
+                    temp = cur->next;
+                    cur->next = cur->next->next;
+                    // Free next
+                    free(temp);
+                }
+            } 
+            else {
+                // Unlink and free node's memory.
+                prev->next = cur->next;
+                temp = cur; 
+                cur = prev;
+                free(temp);
+            }
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+    
     return 0;
 }
 
 // This method frees all memory occupied by the hash table.
 // It returns an error code, 0 for success and -1 otherwise.
 int deallocate(hashtable* ht) {
-    // This line tells the compiler that we know we haven't used the 
-    // variable
-    // yet so don't issue a warning. You should remove this line once 
-    // you use
-    // the parameter.
-    (void) ht;
+    struct n_t *cur, *prev;
+    for (int slot = 0; slot < ht->slots; ++slot) {
+        if (ht->arr[slot] != NULL) {
+            cur = ht->arr[slot];
+            while (cur) {
+                prev = cur;                
+                cur = cur->next;
+                free(prev);
+            }
+        }
+    }
+    free(ht->arr);
+    free(ht);
     return 0;
 }
